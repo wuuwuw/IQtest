@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>学习能力动态评估系统</title>
+    <style>
+        body { 
+            font-family: "Microsoft YaHei", sans-serif; 
+            max-width: 1024px; 
+            margin: 0 auto; 
+            padding: 40px;
+            line-height: 1.7;
+            background: #f0f2f5;
+        }
+        .assessment-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .test-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 25px 0;
+        }
+        .question-item {
+            margin: 30px 0;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .question-title {
+            color: #1a73e8;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f8;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .action-button {
+            padding: 12px 30px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 10px 0;
+        }
+        .action-button:hover {
+            background: #1557b0;
+        }
+        .disabled-btn {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .hidden {
+            display: none;
+        }
+        .result-panel {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 30px 0;
+        }
+        .timer {
+            color: #e91e63;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+        .id-input {
+            margin-bottom: 20px;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="assessment-header">
+        <h1>动态学习能力评估系统</h1>
+        <p>共8道核心题目 | 建议完成时间：45分钟</p>
+    </div>
+
+    <div class="test-panel" id="loginPanel">
+        <div class="id-input">
+            <label for="userId">请输入您的ID：</label>
+            <input type="text" id="userId" placeholder="">
+            <button class="action-button" onclick="verifyUserId()">开始测试</button>
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+    </div>
+
+    <div class="test-panel hidden" id="testPanel">
+        <div class="question-item">
+            <div class="question-title">1. 新运算规则学习</div>
+            <div class="code-block">
+                定义运算符：a ⊕ b = 2a + b/3<br>
+                示例：6 ⊕ 9 = 2×6 + 9/3 = 15
+            </div>
+            <p>计算：9 ⊕ 12 = ?</p>
+            <input type="number" id="q1" class="answer-input">
+        </div>
+
+        <div class="question-item">
+            <div class="question-title">2. 动态规则转换</div>
+            <button class="action-button" onclick="showRuleOnce(this)">显示转换规则（仅1次）</button>
+            <div id="dynamicRule" class="hidden timer">
+                转换规则：每个字母→后两位字母（z→b，y→a）
+            </div>
+            <p>转换单词：exam → ?</p>
+            <input type="text" id="q2" class="answer-input">
+        </div>
+
+        <div class="question-item">
+            <div class="question-title">3. 符号系统解码</div>
+            <div class="code-block">
+                符号对照表（10秒后消失）：<br>
+                ★=7 | ◆=3 | ■=9 | ●=4<br>
+                运算规则：符号相乘后加5
+            </div>
+            <p>计算：★◆ × ■● = ?（结果用数字）</p>
+            <input type="number" id="q3" class="answer-input">
+        </div>
+
+        <div class="question-item">
+            <div class="question-title">4. 逻辑序列推理</div>
+            <div class="code-block">
+                数列规律：2 → 6 → 14 → 30 → 62 → ?
+            </div>
+            <input type="number" id="q4" class="answer-input">
+        </div>
+
+        <div class="question-item">
+            <div class="question-title">5. 跨域类比推理</div>
+            <div class="code-block">
+                计算机：二进制 :: 人类语言：?
+            </div>
+            <input type="text" id="q5" class="answer-input">
+        </div>
+
+        <div class="question-item">
+            <div class="question-title">6. 空间坐标转换</div>
+            <div class="code-block">
+                坐标变换规则：x'=x+y，y'=x-y<br>
+                点A(3,5) → 点A'(?,?)
+            </div>
+            <input type="text" id="q6" class="answer-input" placeholder="格式：x,y">
+        </div>
+
+        <div class="question-item">
+            <div class="question-title">7. 多规则处理</div>
+            <div class="code-block">
+                规则1：奇数位字母大写<br>
+                规则2：偶数位字母+1（z→a）<br>
+                规则3：删除所有元音字母
+            </div>
+            <p>处理字符串：algorithm → ?</p>
+            <input type="text" id="q7" class="answer-input">
+        </div>
+
+        <div class="question-item">
+            <div class="question-title">8. 动态记忆挑战</div>
+            <button class="action-button" onclick="showSequence()">显示序列（3秒）</button>
+            <div id="sequence" class="hidden timer">R#8!qZ$3@</div>
+            <p>请按顺序输入第3、6、9位字符：</p>
+            <input type="text" id="q8" class="answer-input">
+        </div>
+
+        <button class="action-button" onclick="calculateScore()">提交评估</button>
+    </div>
+
+    <div class="result-panel hidden" id="testResult">
+        <h3>评估结果</h3>
+        <p id="resultContent"></p>
+    </div>
+
+    <script>
+        const validUserIds = ["17", "wlr", "pku", "stjusm", "zju"];
+        let currentUserId = null;
+
+        // 验证用户ID，并立即标记为已使用
+        function verifyUserId() {
+            const userIdInput = document.getElementById("userId").value.trim();
+            const errorMessage = document.getElementById("errorMessage");
+
+            if (!validUserIds.includes(userIdInput)) {
+                errorMessage.textContent = "无效ID，请重新输入。";
+                return;
+            }
+
+            // 检查是否已使用过
+            if (localStorage.getItem(`used_${userIdInput}`)) {
+                errorMessage.textContent = "此ID已失效，无法再次使用。";
+                return;
+            }
+
+            // 标记ID为已使用
+            localStorage.setItem(`used_${userIdInput}`, "true");
+            currentUserId = userIdInput;
+
+            // 显示测试面板
+            document.getElementById("loginPanel").classList.add("hidden");
+            document.getElementById("testPanel").classList.remove("hidden");
+        }
+
+        // 动态规则显示控制
+        function showRuleOnce(button) {
+            const rule = document.getElementById('dynamicRule');
+            rule.classList.remove('hidden');
+            button.disabled = true;
+            button.classList.add('disabled-btn');
+            button.textContent = '规则已查看';
+            
+            setTimeout(() => {
+                rule.classList.add('hidden');
+            }, 5000);
+        }
+
+        // 符号对照表自动隐藏
+        setTimeout(() => {
+            document.querySelectorAll('.code-block')[2].style.display = 'none';
+        }, 10000);
+
+        // 动态序列显示控制
+        function showSequence() {
+            const seq = document.getElementById('sequence');
+            seq.classList.remove('hidden');
+            setTimeout(() => seq.classList.add('hidden'), 3000);
+        }
+
+        // 评分系统
+        function calculateScore() {
+            let score = 0;
+            
+            // 即时理解
+            if (+document.getElementById('q1').value === answerKey.q1) score += 15;
+            if (document.getElementById('q2').value.trim() === answerKey.q2) score += 15;
+
+            // 快速学习
+            if (+document.getElementById('q3').value === answerKey.q3) score += 15;
+            if (+document.getElementById('q4').value === answerKey.q4) score += 10;
+
+            // 迁移应用
+            if (document.getElementById('q5').value.trim() === answerKey.q5) score += 15;
+            if (document.getElementById('q6').value.trim() === answerKey.q6) score += 10;
+
+            // 综合挑战
+            if (document.getElementById('q7').value.trim().toUpperCase() === answerKey.q7) score += 10;
+            if (document.getElementById('q8').value.trim() === answerKey.q8) score += 10;
+
+            // 结果评估
+            let level, analysis, suggestion;
+            if (score >= 90) {
+                level = '超速学习者（TOP 0.1%）';
+                analysis = "具备即时理解、快速转化和跨领域迁移的复合能力";
+                suggestion = "建议参与跨学科项目或复杂系统学习";
+            } else if (score >= 80) {
+                level = '高效学习者（TOP 1%）';
+                analysis = "具有优秀的模式识别和规则转化能力";
+                suggestion = "推荐进行高阶认知训练";
+            } else if (score >= 70) {
+                level = '优秀学习者';
+                analysis = "基础认知能力达标，转化速度需提升";
+                suggestion = "加强多规则叠加训练";
+            } else if (score >= 60) {
+                level = '合格学习者';
+                analysis = "具备基本理解能力，需提升应用效率";
+                suggestion = "进行专项认知敏捷度训练";
+            } else {
+                level = '需提升学习敏锐度';
+                analysis = "认知处理速度和准确度待加强";
+                suggestion = "建议基础认知能力系统训练";
+            }
+
+            document.getElementById('testResult').classList.remove('hidden');
+            document.getElementById('resultContent').innerHTML = `
+                <p>总分：${score}/100</p>
+                <p>能力等级：${level}</p>
+                <p>学习特征：${analysis}</p>
+                <p>专业建议：${suggestion}</p>
+            `;
+        }
+
+        const answerKey = {
+            q1: 22,
+            q2: "gcuo",
+            q3: 257,
+            q4: 126,
+            q5: "自然语言",
+            q6: "8,-2",
+            q7: "LGRTHM",
+            q8: "#Z@"
+        };
+    </script>
+</body>
+</html>
